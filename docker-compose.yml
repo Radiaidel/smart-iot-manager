@@ -1,0 +1,59 @@
+services:
+  smart-iot-manager:
+    build: .
+    container_name: smart-iot-manager
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      MONGO_URI: mongodb://mongodb:27017/iotmanager_db
+    depends_on:
+      - mongodb
+    networks:
+      - iot-network
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb_reused
+    ports:
+      - "27017:27017"
+    networks:
+      - iot-network
+    volumes:
+      - mongo-data:/data/db
+
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins_reused
+    ports:
+      - "8082:8080"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+    networks:
+      - iot-network
+    environment:
+      - JENKINS_OPTS=--prefix=/jenkins
+    restart: always
+
+  mongodb-compass:
+    image: mongo-express:latest
+    container_name: mongodb-compass-reused
+    ports:
+      - "27018:8081"
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_MONGODB_PORT: 27017
+    networks:
+      - iot-network
+    depends_on:
+      - mongodb
+
+networks:
+  iot-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
+    driver: local
+  jenkins_home:
+    driver: local
