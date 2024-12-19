@@ -1,33 +1,69 @@
 pipeline {
     agent any
+    environment {
+        SONARQUBE_TOKEN = credentials('sonarqube-token')
+        SONARQUBE = 'SonarQube-Server' // Le nom de votre serveur SonarQube configuré dans Jenkins
+        DOCKER_IMAGE = 'aidar673/smart-iot-manager'  // Nom de votre image Docker
+        DOCKER_REGISTRY = 'docker.io'            // Docker Hub comme registre
+        DOCKER_TAG = 'latest'                    // Le tag de l'image
+    }
     stages {
-      stage('Checkout') {
-                steps {
-                    git branch: 'main', url: 'https://github.com/Radiaidel/smart-iot-manager'
-                }
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/Radiaidel/smart-iot-manager'
             }
+        }
         stage('Build') {
             steps {
-                sh './mvnw clean package'
+                bat 'mvn clean install'
             }
         }
         stage('Test') {
             steps {
-                sh './mvnw test'
+                bat 'mvn test'
+            }
+        }
+        stage('SonarQube Analysis') {
+            steps {
+                // Analyse SonarQube
+                bat """
+                    mvn sonar:sonar \
+                    -Dsonar.host.url=http://$SONARQUBE \
+                    -Dsonar.login=$SONARQUBE_TOKEN
+                """
             }
         }
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t aidar673/smart-iot-manager .'
+                // Construction de l'image Docker
+                bat """
+                    docker build -t $DOCKER_IMAGE:$DOCKER_TAG .
+                """
             }
         }
-        stage('Push to DockerHub') {
+        stage('Push Docker Image') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh 'docker login -u $DOCKER_USER -p $DOCKER_PASS'
-                    sh 'docker push your-dockerhub-username/smart-iot-manager'
+                script {
+                    // Connexion à Docker Hub et push de l'image
+                    withCredentials([usernamePassword(credentialsId: 'docker-credentials', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                        bat """
+                            echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin $DOCKER_REGISTRY
+                            docker push $DOCKER_REGISTRY/$DOCKER_IMAGE:$DOCKER_TAG
+                        """
+                    }
                 }
             }
+        }
+    }
+    post {
+        always {
+            echo 'Pipeline completed.'
+        }
+        success {
+            echo 'Pipeline executed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed!'
         }
     }
 }
