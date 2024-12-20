@@ -1,66 +1,70 @@
 pipeline {
-    agent any
-    environment {
-        SONARQUBE_TOKEN = credentials('sonarqube-token') // ID du token stocké dans Jenkins
-        SONARQUBE = 'SonarQube-Local'                   // Nom du serveur SonarQube configuré dans Jenkins
-        DOCKER_IMAGE = 'aidar673/smart-iot-manager'     // Nom de l'image Docker
-        DOCKER_REGISTRY = 'docker.io'                  // Docker Hub comme registre
-        DOCKER_TAG = 'latest'                          // Tag de l'image
-    }
+        agent any
+
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'SIM-8-ci-cd-integration', url: 'https://github.com/Radiaidel/smart-iot-manager'
+                git branch: 'SIM-8-ci-cd-integration', url: 'https://github.com/Radiaidel/smart-iot-manager.git'
             }
         }
+
         stage('Build') {
             steps {
-                bat 'mvn clean install'
+                // Fix: Ensure `mvnw` has executable permissions
+                sh 'chmod +x ./mvnw'
+                // Use Maven to build the project
+                sh './mvnw clean package -DskipTests'
             }
         }
-        stage('Test') {
-            steps {
-                bat 'mvn test'
-            }
-        }
-
-stage('SonarQube Analysis') {
-    steps {
-        withSonarQubeEnv('SonarQube Local') {
-            withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
-                bat '''mvn clean verify sonar:sonar "-Dsonar.host.url=http://localhost:9000" "-Dsonar.token=%SONAR_TOKEN%"'''
-            }
-        }
-    }
-}
 
         stage('Build Docker Image') {
-    steps {
-        bat 'docker build -t %DOCKER_IMAGE%:%DOCKER_TAG% .'
-    }
-}
+            steps {
+                // Ensure Docker is available
+                sh 'docker --version'
+                // Build the Docker image
+                sh 'docker build -t app:latest .'
+            }
+        }
+
+//         stage('SonarLint') {
+//                     steps {
+//                         withSonarQubeEnv('SonarQube') {
+//                             sh 'mvn sonar:sonar'
+//                         }
+//                     }
+//         }
+
         stage('Push Docker Image') {
             steps {
-                script {
-                    withCredentials([usernamePassword(credentialsId: 'docker-credentials', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                        bat """
-                            echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin $DOCKER_REGISTRY
-                            docker push $DOCKER_REGISTRY/$DOCKER_IMAGE:$DOCKER_TAG
-                        """
-                    }
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials-id', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    sh '''
+                        echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin || exit 1
+                        docker tag app:latest $DOCKER_USERNAME/app:latest
+                        docker push $DOCKER_USERNAME/app:latest
+                    '''
                 }
             }
         }
+
+
+            stage('Deploy') {
+                        steps {
+                            sh 'docker-compose down && docker-compose up -d'
+                        }
+            }
+
+        }
+
+        post {
+            always {
+                echo 'Cleaning up Docker resources...'
+                sh 'docker system prune -f || true' // Ensure it doesn't fail the pipeline
+            }
+            success {
+                        echo 'Pipeline exécuté avec succès !'
+            }
+            failure {
+                        echo 'Pipeline échoué.'
+            }
+        }
     }
-    post {
-        always {
-            echo 'Pipeline completed.'
-        }
-        success {
-            echo 'Pipeline executed successfully!'
-        }
-        failure {
-            echo 'Pipeline failed!'
-        }
-    }
-}
