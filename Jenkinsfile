@@ -1,14 +1,5 @@
 pipeline {
-    agent any
-
- tools {
-        maven 'Maven 3' // This name should match your Maven installation name in Jenkins
-    }
-
-    environment {
-        DOCKER_USERNAME = 'aidar673'
-        DOCKER_IMAGE = 'aidar673/smart-iot-manager'
-    }
+        agent any
 
     stages {
         stage('Checkout') {
@@ -19,45 +10,61 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                // Fix: Ensure `mvnw` has executable permissions
+                sh 'chmod +x ./mvnw'
+                // Use Maven to build the project
+                sh './mvnw clean package -DskipTests'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh "docker build -t ${DOCKER_IMAGE}:latest ."
+                // Ensure Docker is available
+                sh 'docker --version'
+                // Build the Docker image
+                sh 'docker build -t app:latest .'
             }
         }
+
+//         stage('SonarLint') {
+//                     steps {
+//                         withSonarQubeEnv('SonarQube') {
+//                             sh 'mvn sonar:sonar'
+//                         }
+//                     }
+//         }
 
         stage('Push Docker Image') {
             steps {
-              withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                  sh '''
-                  echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
-                  docker push docker.io/library/app:latest
-                  '''
-              }
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials-id', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    sh '''
+                        echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin || exit 1
+                        docker tag app:latest $DOCKER_USERNAME/app:latest
+                        docker push $DOCKER_USERNAME/app:latest
+                    '''
+                }
             }
         }
 
-        stage('Deploy') {
-            steps {
-                sh 'docker-compose down || true'
-                sh 'docker-compose up -d'
+
+            stage('Deploy') {
+                        steps {
+                            sh 'docker-compose down && docker-compose up -d'
+                        }
+            }
+
+        }
+
+        post {
+            always {
+                echo 'Cleaning up Docker resources...'
+                sh 'docker system prune -f || true' // Ensure it doesn't fail the pipeline
+            }
+            success {
+                        echo 'Pipeline exécuté avec succès !'
+            }
+            failure {
+                        echo 'Pipeline échoué.'
             }
         }
     }
-
-    post {
-        always {
-            sh 'docker logout || true'
-            sh 'docker system prune -f || true'
-        }
-        success {
-            echo 'Pipeline executed successfully!'
-        }
-        failure {
-            echo 'Pipeline failed.'
-        }
-    }
-}
