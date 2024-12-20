@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    environment {
+        DOCKER_USERNAME = 'aidar673'
+        DOCKER_IMAGE = 'aidar673/smart-iot-manager'
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -10,57 +15,46 @@ pipeline {
 
         stage('Build') {
             steps {
-                // Utiliser Maven Wrapper pour Windows
                 bat 'mvnw clean package -DskipTests'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                // Vérifier que Docker est disponible
-                bat 'docker --version'
-                // Construire l'image Docker
-                bat 'docker build -t app:latest .'
+                bat "docker build -t ${DOCKER_IMAGE}:latest ."
             }
         }
 
-      stage('Push Docker Image') {
-          steps {
-              withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials-id', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                  echo "DOCKER_USERNAME: ${DOCKER_USERNAME}"
-                  echo "DOCKER_PASSWORD: ${DOCKER_PASSWORD}" // This will be masked, so the password will not be shown
-                  bat '''
-                      echo %DOCKER_PASSWORD% | docker login -u %DOCKER_USERNAME% --password-stdin
-                      docker tag app:latest %DOCKER_USERNAME%/app:latest
-                      docker push %DOCKER_USERNAME%/app:latest
-                  '''
-                  bat '''
-                      echo %DOCKER_PASSWORD% | docker login -u %DOCKER_USERNAME% --password-stdin --debug
-                  '''
-
-              }
-          }
-      }
-
+        stage('Push Docker Image') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials-id', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                    bat '''
+                        docker logout
+                        echo %DOCKER_PASSWORD% | docker login -u %DOCKER_USERNAME% --password-stdin
+                        docker push %DOCKER_USERNAME%/smart-iot-manager:latest
+                    '''
+                }
+            }
+        }
 
         stage('Deploy') {
             steps {
-                // Déploiement avec Docker Compose
-                bat 'docker-compose down && docker-compose up -d'
+                bat 'docker-compose down || true'
+                bat 'docker-compose up -d'
             }
         }
     }
 
     post {
         always {
-            echo 'Nettoyage des ressources Docker...'
-            bat 'docker system prune -f || true' // Assurez-vous que cette commande ne fait pas échouer le pipeline
+            bat 'docker logout || true'
+            bat 'docker system prune -f || true'
         }
         success {
-            echo 'Pipeline exécuté avec succès !'
+            echo 'Pipeline executed successfully!'
         }
         failure {
-            echo 'Pipeline échoué.'
+            echo 'Pipeline failed.'
         }
     }
 }
