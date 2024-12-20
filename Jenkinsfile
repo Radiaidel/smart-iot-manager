@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+ tools {
+        maven 'Maven 3' // This name should match your Maven installation name in Jenkins
+    }
+
     environment {
         DOCKER_USERNAME = 'aidar673'
         DOCKER_IMAGE = 'aidar673/smart-iot-manager'
