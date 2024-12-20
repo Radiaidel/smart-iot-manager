@@ -11,25 +11,25 @@ pipeline {
         stage('Build') {
             steps {
                 // Fix: Ensure `mvnw` has executable permissions
-                sh 'chmod +x ./mvnw'
+                bat 'chmod +x ./mvnw'
                 // Use Maven to build the project
-                sh './mvnw clean package -DskipTests'
+                bat './mvnw clean package -DskipTests'
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 // Ensure Docker is available
-                sh 'docker --version'
+                bat 'docker --version'
                 // Build the Docker image
-                sh 'docker build -t app:latest .'
+                bat 'docker build -t app:latest .'
             }
         }
 
 //         stage('SonarLint') {
 //                     steps {
 //                         withSonarQubeEnv('SonarQube') {
-//                             sh 'mvn sonar:sonar'
+//                             bat 'mvn sonar:sonar'
 //                         }
 //                     }
 //         }
@@ -37,7 +37,7 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials-id', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                    sh '''
+                    bat '''
                         echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin || exit 1
                         docker tag app:latest $DOCKER_USERNAME/app:latest
                         docker push $DOCKER_USERNAME/app:latest
@@ -49,7 +49,7 @@ pipeline {
 
             stage('Deploy') {
                         steps {
-                            sh 'docker-compose down && docker-compose up -d'
+                            bat 'docker-compose down && docker-compose up -d'
                         }
             }
 
@@ -58,7 +58,7 @@ pipeline {
         post {
             always {
                 echo 'Cleaning up Docker resources...'
-                sh 'docker system prune -f || true' // Ensure it doesn't fail the pipeline
+                bat 'docker system prune -f || true' // Ensure it doesn't fail the pipeline
             }
             success {
                         echo 'Pipeline exécuté avec succès !'
