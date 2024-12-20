@@ -1,5 +1,5 @@
 pipeline {
-        agent any
+    agent any
 
     stages {
         stage('Checkout') {
@@ -10,61 +10,50 @@ pipeline {
 
         stage('Build') {
             steps {
-                // Fix: Ensure `mvnw` has executable permissions
-                bat 'chmod +x ./mvnw'
-                // Use Maven to build the project
-                bat './mvnw clean package -DskipTests'
+                // Utiliser Maven Wrapper pour Windows
+                bat 'mvnw clean package -DskipTests'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                // Ensure Docker is available
+                // Vérifier que Docker est disponible
                 bat 'docker --version'
-                // Build the Docker image
+                // Construire l'image Docker
                 bat 'docker build -t app:latest .'
             }
         }
-
-//         stage('SonarLint') {
-//                     steps {
-//                         withSonarQubeEnv('SonarQube') {
-//                             bat 'mvn sonar:sonar'
-//                         }
-//                     }
-//         }
 
         stage('Push Docker Image') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials-id', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                     bat '''
-                        echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin || exit 1
-                        docker tag app:latest $DOCKER_USERNAME/app:latest
-                        docker push $DOCKER_USERNAME/app:latest
+                        echo %DOCKER_PASSWORD% | docker login -u %DOCKER_USERNAME% --password-stdin || exit 1
+                        docker tag app:latest %DOCKER_USERNAME%/app:latest
+                        docker push %DOCKER_USERNAME%/app:latest
                     '''
                 }
             }
         }
 
-
-            stage('Deploy') {
-                        steps {
-                            bat 'docker-compose down && docker-compose up -d'
-                        }
-            }
-
-        }
-
-        post {
-            always {
-                echo 'Cleaning up Docker resources...'
-                bat 'docker system prune -f || true' // Ensure it doesn't fail the pipeline
-            }
-            success {
-                        echo 'Pipeline exécuté avec succès !'
-            }
-            failure {
-                        echo 'Pipeline échoué.'
+        stage('Deploy') {
+            steps {
+                // Déploiement avec Docker Compose
+                bat 'docker-compose down && docker-compose up -d'
             }
         }
     }
+
+    post {
+        always {
+            echo 'Nettoyage des ressources Docker...'
+            bat 'docker system prune -f || true' // Assurez-vous que cette commande ne fait pas échouer le pipeline
+        }
+        success {
+            echo 'Pipeline exécuté avec succès !'
+        }
+        failure {
+            echo 'Pipeline échoué.'
+        }
+    }
+}
