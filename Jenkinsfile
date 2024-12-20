@@ -34,6 +34,10 @@ pipeline {
                       docker tag app:latest %DOCKER_USERNAME%/app:latest
                       docker push %DOCKER_USERNAME%/app:latest
                   '''
+                  bat '''
+                      echo %DOCKER_PASSWORD% | docker login -u %DOCKER_USERNAME% --password-stdin --debug
+                  '''
+
               }
           }
       }
