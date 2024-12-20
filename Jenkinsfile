@@ -24,17 +24,20 @@ pipeline {
             }
         }
 
-        stage('Push Docker Image') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials-id', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                    bat '''
-                        echo %DOCKER_PASSWORD% | docker login -u %DOCKER_USERNAME% --password-stdin || exit 1
-                        docker tag app:latest %DOCKER_USERNAME%/app:latest
-                        docker push %DOCKER_USERNAME%/app:latest
-                    '''
-                }
-            }
-        }
+      stage('Push Docker Image') {
+          steps {
+              withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials-id', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                  echo "DOCKER_USERNAME: ${DOCKER_USERNAME}"
+                  echo "DOCKER_PASSWORD: ${DOCKER_PASSWORD}" // This will be masked, so the password will not be shown
+                  bat '''
+                      echo %DOCKER_PASSWORD% | docker login -u %DOCKER_USERNAME% --password-stdin
+                      docker tag app:latest %DOCKER_USERNAME%/app:latest
+                      docker push %DOCKER_USERNAME%/app:latest
+                  '''
+              }
+          }
+      }
+
 
         stage('Deploy') {
             steps {
