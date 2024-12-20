@@ -34,7 +34,7 @@
 		<springdoc.version>2.3.0</springdoc.version>
 		<testcontainers.version>1.19.6</testcontainers.version>
 		<sonar.host.url>http://localhost:9000</sonar.host.url>
-		<sonar.token>sqp_a7ca450fcb044cd71c64aa8389cd13ba4ce29272</sonar.token>
+		<sonar.token>sqp_b04a34f380eef3bc2c36b88a9a993f368a0df459</sonar.token>
 	</properties>
 	<dependencies>
 		<dependency>
