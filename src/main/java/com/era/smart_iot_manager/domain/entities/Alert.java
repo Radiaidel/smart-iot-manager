@@ -23,6 +23,7 @@ public class Alert {
     private AlertSeverity severity;
     private String message;
     private LocalDateTime timestamp;
-
+    @DBRef
+    private Device device;
 
 }

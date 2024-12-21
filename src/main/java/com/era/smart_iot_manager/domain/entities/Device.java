@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -25,5 +26,6 @@ public class Device {
     private DeviceStatus status;
     private LocalDateTime lastCommunication;
     private String zoneId;
-
+    @DBRef
+    private List<Alert> device;
 }
