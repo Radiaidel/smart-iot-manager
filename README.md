@@ -1,4 +1,4 @@
-# Smart IoT Manager
+# 🌟 Smart IoT Manager
 
 A secure REST API for managing IoT sensors infrastructure built with Spring Boot, featuring stateless authentication and role-based access control.
 
@@ -161,6 +161,3 @@ mvn test
 3. Push to branch (`git push origin feature/amazing-feature`)
 4. Open a Pull Request
 
-## 📄 License
-
-This project is licensed under the [License Name] - see the LICENSE file for details.
