@@ -25,9 +25,8 @@ public class RoleInitializer {
     private void createRoleIfNotExists(String roleName, Integer level) {
         Optional<Role> existingRole = roleRepository.findByName(roleName);
         if (existingRole.isEmpty()) {
-            Role newRole = new Role();
-            newRole.setName(roleName);
-            newRole.setLevel(level);
+            Role newRole =Role.builder().name(roleName).level(level).build();
+
             roleRepository.save(newRole);
         }
     }

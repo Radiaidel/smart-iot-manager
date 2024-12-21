@@ -24,5 +24,6 @@ public class User {
     
     private String password;
     private boolean active;
+    @Builder.Default
     private Set<Role> roles = new HashSet<>();
 }
