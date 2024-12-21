@@ -1,7 +1,6 @@
 package com.era.smart_iot_manager.controller;
 
 
-import com.era.smart_iot_manager.domain.entities.Alert;
 import com.era.smart_iot_manager.dto.response.AlertResponse;
 import com.era.smart_iot_manager.service.inter.AlertService;
 import lombok.RequiredArgsConstructor;
@@ -24,13 +23,13 @@ public class AlertController {
 
     @GetMapping("/user/alerts")
     public ResponseEntity<Page<AlertResponse>> getAllAlerts(Pageable pageable) {
-        Page<Alert> alerts = alertService.getAllAlerts(pageable);
+        Page<AlertResponse> alerts = alertService.getAllAlerts(pageable);
         return ResponseEntity.ok(alerts);
     }
 
     @GetMapping("/user/alerts/{id}")
     public ResponseEntity<AlertResponse> getAlertById(@PathVariable String id) {
-        Alert alert = alertService.getAlertById(id);
+        AlertResponse alert = alertService.getAlertById(id);
         return ResponseEntity.ok(alert);
     }
 
