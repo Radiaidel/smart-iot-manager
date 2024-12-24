@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-
 @Slf4j
 @Component
 public class JwtUtils {
@@ -22,8 +21,18 @@ public class JwtUtils {
     private int jwtExpirationMs;
 
     private SecretKey getSigningKey() {
-        byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
-        return Keys.hmacShaKeyFor(Keys.secretKeyFor(SignatureAlgorithm.HS512).getEncoded());
+        // Générer une clé sécurisée pour HS512
+        return Keys.secretKeyFor(SignatureAlgorithm.HS512);
+    }
+
+    // Cache de la clé pour éviter d'en générer une nouvelle à chaque fois
+    private SecretKey cachedKey;
+
+    private SecretKey getOrCreateSigningKey() {
+        if (cachedKey == null) {
+            cachedKey = getSigningKey();
+        }
+        return cachedKey;
     }
 
     public String generateJwtToken(Authentication authentication) {
@@ -33,13 +42,13 @@ public class JwtUtils {
                 .setSubject(userPrincipal.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
-                .signWith(getSigningKey(), SignatureAlgorithm.HS512)
+                .signWith(getOrCreateSigningKey(), SignatureAlgorithm.HS512)
                 .compact();
     }
 
     public String getUserNameFromJwtToken(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
+                .setSigningKey(getOrCreateSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
@@ -49,7 +58,7 @@ public class JwtUtils {
     public boolean validateJwtToken(String authToken) {
         try {
             Jwts.parserBuilder()
-                    .setSigningKey(getSigningKey())
+                    .setSigningKey(getOrCreateSigningKey())
                     .build()
                     .parseClaimsJws(authToken);
             return true;
