@@ -3,7 +3,7 @@ package com.era.smart_iot_manager.mapper;
 
 import com.era.smart_iot_manager.dto.request.ZoneRequest;
 import com.era.smart_iot_manager.dto.response.ZoneResponse;
-import com.era.smart_iot_manager.model.Zone;
+import com.era.smart_iot_manager.domain.entities.Zone;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;

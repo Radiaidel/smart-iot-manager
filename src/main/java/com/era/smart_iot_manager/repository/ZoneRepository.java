@@ -1,6 +1,6 @@
 package com.era.smart_iot_manager.repository;
 
-import com.era.smart_iot_manager.model.Zone;
+import com.era.smart_iot_manager.domain.entities.Zone;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

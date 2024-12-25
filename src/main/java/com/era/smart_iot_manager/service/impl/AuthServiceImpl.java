@@ -5,8 +5,8 @@ import com.era.smart_iot_manager.dto.request.LoginRequest;
 import com.era.smart_iot_manager.dto.request.RegisterRequest;
 import com.era.smart_iot_manager.dto.response.JwtResponse;
 import com.era.smart_iot_manager.exception.UserAlreadyExistsException;
-import com.era.smart_iot_manager.model.Role;
-import com.era.smart_iot_manager.model.User;
+import com.era.smart_iot_manager.domain.entities.Role;
+import com.era.smart_iot_manager.domain.entities.User;
 import com.era.smart_iot_manager.repository.RoleRepository;
 import com.era.smart_iot_manager.repository.UserRepository;
 import com.era.smart_iot_manager.security.jwt.JwtUtils;
@@ -61,7 +61,7 @@ public class AuthServiceImpl  implements AuthService {
             throw new UserAlreadyExistsException("User already exists");
         }
 
-        Role userRole = roleRepository.findByName("ROLE_USER")
+        Role userRole = roleRepository.findByName("ROLE_ADMIN")
                 .orElseThrow(() -> new RuntimeException("Role not found"));
 
         User user = User.builder()

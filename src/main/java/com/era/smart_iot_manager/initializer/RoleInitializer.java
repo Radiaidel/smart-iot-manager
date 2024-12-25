@@ -1,6 +1,6 @@
 package com.era.smart_iot_manager.initializer;
 
-import com.era.smart_iot_manager.model.Role;
+import com.era.smart_iot_manager.domain.entities.Role;
 import com.era.smart_iot_manager.repository.RoleRepository;
 import org.springframework.stereotype.Component;
 

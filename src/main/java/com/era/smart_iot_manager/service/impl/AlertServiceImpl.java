@@ -2,9 +2,10 @@ package com.era.smart_iot_manager.service.impl;
 
 
 import com.era.smart_iot_manager.domain.Enum.AlertSeverity;
-import com.era.smart_iot_manager.domain.Enum.DeviceType;
+import com.era.smart_iot_manager.domain.Enum.DeviceStatus;
 import com.era.smart_iot_manager.domain.entities.Alert;
 import com.era.smart_iot_manager.domain.entities.Device;
+import com.era.smart_iot_manager.domain.entities.Measurement;
 import com.era.smart_iot_manager.dto.response.AlertResponse;
 import com.era.smart_iot_manager.mapper.AlertMapper;
 import com.era.smart_iot_manager.repository.AlertRepository;
@@ -35,15 +36,16 @@ public class AlertServiceImpl implements AlertService {
     public AlertResponse getAlertById(String id) {
         return null;
     }
+
     @Override
     public void checkAndGenerateAlert(Device device, Measurement measurement) {
         AlertSeverity severity;
         String message;
 
-        if (device.getType() == DeviceType.TEMPERATURE_SENSOR) {
+        if (device.getStatus() == DeviceStatus.TEMPERATURE_SENSOR) {
             severity = getTemperatureAlertSeverity(measurement.getValue());
             message = getTemperatureAlertMessage(severity);
-        } else if (device.getType() == DeviceType.HUMIDITY_SENSOR) {
+        } else if (device.getStatus() == DeviceStatus.HUMIDITY_SENSOR) {
             severity = getHumidityAlertSeverity(measurement.getValue());
             message = getHumidityAlertMessage(severity);
         } else {

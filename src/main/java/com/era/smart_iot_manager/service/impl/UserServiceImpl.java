@@ -1,7 +1,7 @@
 package com.era.smart_iot_manager.service.impl;
 
-import com.era.smart_iot_manager.model.User;
-import com.era.smart_iot_manager.model.Role;
+import com.era.smart_iot_manager.domain.entities.User;
+import com.era.smart_iot_manager.domain.entities.Role;
 import com.era.smart_iot_manager.repository.UserRepository;
 import com.era.smart_iot_manager.repository.RoleRepository;
 import com.era.smart_iot_manager.service.UserService;

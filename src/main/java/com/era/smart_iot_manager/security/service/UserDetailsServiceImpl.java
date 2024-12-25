@@ -1,6 +1,6 @@
 package com.era.smart_iot_manager.security.service;
 
-import com.era.smart_iot_manager.model.User;
+import com.era.smart_iot_manager.domain.entities.User;
 import com.era.smart_iot_manager.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

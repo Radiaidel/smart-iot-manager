@@ -1,9 +1,8 @@
 package com.era.smart_iot_manager.service.inter;
 
-import com.era.smart_iot_manager.domain.entities.Alert;
 import com.era.smart_iot_manager.domain.entities.Device;
 import com.era.smart_iot_manager.dto.response.AlertResponse;
-import io.micrometer.core.instrument.Measurement;
+import com.era.smart_iot_manager.domain.entities.Measurement;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

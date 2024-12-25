@@ -1,4 +1,4 @@
-package com.era.smart_iot_manager.model;
+package com.era.smart_iot_manager.domain.entities;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;

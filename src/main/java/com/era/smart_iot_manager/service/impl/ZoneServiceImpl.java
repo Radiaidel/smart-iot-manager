@@ -4,7 +4,7 @@ import com.era.smart_iot_manager.dto.request.ZoneRequest;
 import com.era.smart_iot_manager.dto.response.ZoneResponse;
 import com.era.smart_iot_manager.exception.ResourceNotFoundException;
 import com.era.smart_iot_manager.mapper.ZoneMapper;
-import com.era.smart_iot_manager.model.Zone;
+import com.era.smart_iot_manager.domain.entities.Zone;
 import com.era.smart_iot_manager.repository.ZoneRepository;
 import com.era.smart_iot_manager.service.ZoneService;
 import lombok.RequiredArgsConstructor;

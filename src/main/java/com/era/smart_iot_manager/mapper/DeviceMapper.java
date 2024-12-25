@@ -17,7 +17,20 @@ public interface DeviceMapper {
     @Mapping(target = "lastCommunication", ignore = true)
     Device toEntity(DeviceRequest deviceRequestDto);
 
-
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "lastCommunication", ignore = true)
+    @Mapping(target = "zone", ignore = true)
     void updateEntity(@MappingTarget Device device, DeviceRequest deviceRequest);
+
+    @AfterMapping
+    default void setZoneAfterMapping(@MappingTarget Device device, DeviceRequest deviceRequest) {
+        if (deviceRequest.getZoneId() != null) {
+            if (device.getZone() == null) {
+                device.setZone(new com.era.smart_iot_manager.domain.entities.Zone());
+            }
+            device.getZone().setId(deviceRequest.getZoneId());
+        }
+    }
 }
+

@@ -28,4 +28,7 @@ public class Device {
     private String zoneId;
     @DBRef
     private List<Alert> device;
+
+    @DBRef
+    private Zone zone;
 }

@@ -1,7 +1,7 @@
 package com.era.smart_iot_manager.repository;
 
 
-import com.era.smart_iot_manager.model.User;
+import com.era.smart_iot_manager.domain.entities.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.Optional;

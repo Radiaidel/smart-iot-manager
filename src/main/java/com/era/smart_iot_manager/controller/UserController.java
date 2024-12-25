@@ -1,7 +1,7 @@
 package com.era.smart_iot_manager.controller;
 
-import com.era.smart_iot_manager.model.User;
-import com.era.smart_iot_manager.model.Role;
+import com.era.smart_iot_manager.domain.entities.User;
+import com.era.smart_iot_manager.domain.entities.Role;
 import com.era.smart_iot_manager.service.UserService;
 import com.era.smart_iot_manager.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
@@ -28,7 +29,7 @@ public class UserController {
         this.roleService = roleService;
     }
 
-    @Secured("ROLE_ADMIN")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<Page<User>> getAllUsers(
             @RequestParam(defaultValue = "0") int page,
@@ -47,7 +48,7 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-    @Secured("ROLE_ADMIN")
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}/roles")
     public ResponseEntity<User> updateUserRoles(@PathVariable String id, @RequestBody Set<Role> roles) {
         User updatedUser = userService.updateUserRoles(id, roles);
