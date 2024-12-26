@@ -24,15 +24,7 @@ pipeline {
             }
         }
 
-stage('SonarQube Analysis') {
-    steps {
-        withSonarQubeEnv('SonarQube Local') {
-            withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
-                bat '''mvn clean verify sonar:sonar "-Dsonar.host.url=http://localhost:9000" "-Dsonar.token=%SONAR_TOKEN%"'''
-            }
-        }
-    }
-}
+
 
         stage('Build Docker Image') {
     steps {
