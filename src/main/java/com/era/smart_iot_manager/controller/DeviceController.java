@@ -26,14 +26,14 @@ public class DeviceController {
     private static final Logger log = LoggerFactory.getLogger(DeviceController.class);
     private final DeviceService deviceService;
 
-    @GetMapping("/user/devices")
+    @GetMapping({"/user/devices" , "/admin/devices"} )
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<Page<DeviceResponse>> getAllDevices(Pageable pageable) {
         Page<DeviceResponse> devices = deviceService.getAllDevices(pageable);
         return ResponseEntity.ok(devices);
     }
 
-    @GetMapping("/user/devices/zone/{zoneId}")
+    @GetMapping({"/user/devices/zone/{zoneId}" ,"/admin/devices/zone/{zoneId}"})
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<Page<DeviceResponse>> getDevicesByZone(@PathVariable String zoneId, Pageable pageable) {
         Page<DeviceResponse> devices = deviceService.getDevicesByZone(zoneId, pageable);
@@ -48,7 +48,7 @@ public class DeviceController {
         return ResponseEntity.status(HttpStatus.CREATED).body(newDevice);
     }
 
-    @GetMapping("/user/devices/{id}")
+    @GetMapping({"/user/devices/{id}" ,"/admin/devices/{id}"})
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<DeviceResponse> getDeviceById(@PathVariable String id) {
         DeviceResponse device = deviceService.getDeviceById(id);

@@ -23,14 +23,14 @@ public class AlertController {
 
     private final AlertService alertService;
 
-    @GetMapping("/user/alerts")
+    @GetMapping({"/user/alerts" , "/admin/alerts"} )
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<Page<AlertResponse>> getAllAlerts(Pageable pageable) {
         Page<AlertResponse> alerts = alertService.getAllAlerts(pageable);
         return ResponseEntity.ok(alerts);
     }
 
-    @GetMapping("/user/alerts/{id}")
+    @GetMapping({"/user/alerts/{id}", "/admin/alerts/{id}"})
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<AlertResponse> getAlertById(@PathVariable String id) {
         AlertResponse alert = alertService.getAlertById(id);
